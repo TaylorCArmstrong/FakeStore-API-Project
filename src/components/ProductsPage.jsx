@@ -1,9 +1,22 @@
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 
 function ProductsPage() {
+    const customProducts = [
+        { id: 1, title: 'Black Beans', price: 29.99, image: 'Black.jpg' },
+        { id: 2, title: 'Black Eyed Peas', price: 39.99, image: 'BlackEyed.jpg' },
+        { id: 3, title: 'Chickpeas/Garbanzo Beans', price: 49.99, image: 'Garbanzo.jpg' },
+        { id: 4, title: 'Kidney Beans', price: 59.99, image: 'Kidney.jpg' },
+        { id: 5, title: 'Lentils', price: 69.99, image: 'Lentil.jpg' },
+        { id: 6, title: 'Red Lentils', price: 79.99, image: 'RedLentil.jpg' },
+        { id: 7, title: 'Yellow Lentils', price: 89.99, image: 'YellowLentil.jpg' },
+        { id: 8, title: 'Lima Beans', price: 99.99, image: 'Lima.jpg' },
+        { id: 9, title: 'Navy Beans', price: 109.99, image: 'Navy.jpg' },
+        { id: 10, title: 'Peas', price: 119.99, image: 'Peas.jpg' },
+        { id: 11, title: 'Pinto Beans', price: 129.99, image: 'Pinto.jpg' },
+    ];
+
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -12,8 +25,7 @@ function ProductsPage() {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await axios.get('https://fakestoreapi.com/products');
-                setProducts(response.data);
+                setProducts(customProducts);
                 setLoading(false);
             } catch (err) {
                 setError(err.message);
@@ -22,7 +34,7 @@ function ProductsPage() {
         };
 
         fetchProducts();
-    }, []);
+    }, [customProducts]);
 
     if (loading) return <Container className="mt-5"><p>Loading products...</p></Container>;
     if (error) return <Container className="mt-5"><p>Error: {error}</p></Container>;
