@@ -6,10 +6,10 @@ import beans3 from '../assets/Various-Beans-3.jpg';
 function HomePage() {
     return (
         <Container>
-            <Row>
-                <Col>
-                <h1>🫘Welcome to Buy my Beans!🫘</h1>
-                <p>We specialize in shipping the highest quality of beans straight to your doorstep.</p>
+            <Row className="justify-content-center my-5">
+                <Col md={8} className="text-center" style={{ backgroundColor: '#c1aa8dff', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)' }}>
+                    <h1>🫘Welcome to Buy my Beans!🫘</h1>
+                    <p>We specialize in shipping the highest quality of beans straight to your doorstep.</p>
                 </Col>
             </Row>
 

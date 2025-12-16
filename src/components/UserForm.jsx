@@ -14,14 +14,13 @@ import axios from 'axios';
 const UserForm = () => {
 
     const [formData, setFormData] = useState ({
-        name:'',
-        email:'',
-        phone:'',
-        communication:'', 
+        title:'',
+        price:'',
+        description:'', 
     });
 
     const [submitted, setSubmitted] = useState(false);
-    const [user, setUser] = useState(null);
+    const [product, setProduct] = useState(null);
     const [error, setError] = useState(null);
 
     const [showModal, setShowModal] = useState(false);
@@ -47,143 +46,88 @@ const UserForm = () => {
     }
 
     try {
-      const response = await axios.post('https://jsonplaceholder.typicode.com/users', formData);
+      const response = await axios.post('https://fakestoreapi.com/products', {
+        title: formData.title,
+        price: parseFloat(formData.price),
+        description: formData.description,
+        image: 'https://via.placeholder.com/200',
+        category: 'custom'
+      });
       console.log(response.data);
-      setUser(response.data);
+      setProduct(response.data);
       setSubmitted(true);
       setShowModal(true);
       setError(null);
       setValidated(false);
       setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        communication: '',
-        food: ''
+        title: '',
+        price: '',
+        description: ''
       });
     } catch (err) {
-      setError(`Error submitting the form. Please try again: ${err.message}`);
+      setError(`Error creating product. Please try again: ${err.message}`);
       setSubmitted(false);
     }
   };
 
   return (
     <Container className="mt-5">
-      <h2>Create User</h2>
+      <h2>Create New Product</h2>
 
-      <FormModal user={user} submitted={submitted} showModal={showModal} handleCloseModal={handleCloseModal} />
+      <FormModal user={product} submitted={submitted} showModal={showModal} handleCloseModal={handleCloseModal} />
 
-      {submitted && <Alert variant="success" dismissible>{user.name} created successfully!</Alert>}
+      {submitted && <Alert variant="success" dismissible>{product.title} created successfully!</Alert>}
       {error && <Alert variant="danger" dismissible>{error}</Alert>}
 
       
 
-      <Form onSubmit={handleSubmit}>
-        <Row>
-          <Col md="5">
-            <Form.Group controlId="formName" className="mb-3">
-              <Form.Label>Name</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter your name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-            </Form.Group>
-          </Col>
-
-          <Col md="7">
-            <InputGroup className="mb-3" style={{ marginTop: '32px' }}>
-              <InputGroup.Text>@</InputGroup.Text>
-              <Form.Control
-                type="email"
-                placeholder="Enter your email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-
-                  <Form.Control.Feedback type="invalid">
-                    Please provide an email
-                  </Form.Control.Feedback>
-
-            </InputGroup>
-          </Col>
-        </Row>
-
-        <Row>
-          <Col md="7">
-            <FloatingLabel controlId="floatingPhone" label="Phone" className="mb-3" style={{ marginTop: '12px' }}>
-              <Form.Control
-                type="number"
-                placeholder="Phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                required
-              />
-
-                  <Form.Control.Feedback type="invalid">
-                    Please provide a phone number
-                </Form.Control.Feedback>    
-
-            </FloatingLabel>
-          </Col>
-
-          <Col md="5">
-            <Form.Group controlId="formSelect" className="mb-3">
-              <Form.Label>Select Favorite Food</Form.Label>
-              <Form.Select
-                name="food"
-                value={formData.food}
-                onChange={handleChange}
-                required
-              >
-                <option hidden value="">Choose...</option>
-                <option>Pizza</option>
-                <option>Steak</option>
-                <option>Ice Cream</option>
-                <option>Other</option>
-              </Form.Select>
-
-                  <Form.Control.Feedback type="invalid">
-                  Please select a food
-                 </Form.Control.Feedback>
-
-            </Form.Group>
-          </Col>
-        </Row>
-
-        <Form.Group className="mb-3" controlId="formRadio">
-          <Form.Label>Preferred method of communication:</Form.Label>
-          <Form.Check
-            type="radio"
-            id="email"
-            name="communication"
-            label="Email"
-            value="Email"
+      <Form onSubmit={handleSubmit} noValidate validated={validated}>
+        <Form.Group controlId="formTitle" className="mb-3">
+          <Form.Label>Product Title</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Enter product title"
+            name="title"
+            value={formData.title}
             onChange={handleChange}
             required
           />
-          <Form.Check
-            type="radio"
-            id="phone"
-            name="communication"
-            label="Phone"
-            value="Phone"
+          <Form.Control.Feedback type="invalid">
+            Please provide a product title
+          </Form.Control.Feedback>
+        </Form.Group>
+
+        <Form.Group controlId="formPrice" className="mb-3">
+          <Form.Label>Price ($)</Form.Label>
+          <Form.Control
+            type="number"
+            placeholder="Enter product price"
+            name="price"
+            value={formData.price}
+            onChange={handleChange}
+            step="0.01"
+            min="0"
+            required
+          />
+          <Form.Control.Feedback type="invalid">
+            Please provide a valid price
+          </Form.Control.Feedback>
+        </Form.Group>
+
+        <Form.Group controlId="formDescription" className="mb-3">
+          <Form.Label>Description</Form.Label>
+          <Form.Control
+            as="textarea"
+            rows={4}
+            placeholder="Enter product description"
+            name="description"
+            value={formData.description}
             onChange={handleChange}
             required
           />
-
-           {validated && !formData.communication && (
-            <Form.Control.Feedback type="invalid" className="d-block">
-             Please select a communication method
-             </Form.Control.Feedback>
-           )}
-
+          <Form.Control.Feedback type="invalid">
+            Please provide a product description
+          </Form.Control.Feedback>
         </Form.Group>
 
         <Button variant="primary" type="submit" className="mt-3">
