@@ -9,7 +9,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import FormModal from './FormModal';
 import OffCanvas from './OffCanvas';
-import axios from 'axios';
+import { createProduct } from '../services/productService.js';
 
 const UserForm = () => {
 
@@ -46,15 +46,14 @@ const UserForm = () => {
     }
 
     try {
-      const response = await axios.post('https://fakestoreapi.com/products', {
+      const newProduct = await createProduct({
         title: formData.title,
         price: parseFloat(formData.price),
         description: formData.description,
         image: 'https://via.placeholder.com/200',
         category: 'custom'
       });
-      console.log(response.data);
-      setProduct(response.data);
+      setProduct(newProduct);
       setSubmitted(true);
       setShowModal(true);
       setError(null);

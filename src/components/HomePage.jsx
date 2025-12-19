@@ -1,4 +1,5 @@
 import { Container, Carousel, Row, Col } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import beans1 from '../assets/Various-Beans-1.jpg';
 import beans2 from '../assets/Various-Beans-2.jpg';
 import beans3 from '../assets/Various-Beans-3.jpg';
@@ -53,6 +54,11 @@ function HomePage() {
                     </Carousel.Item>
 
                 </Carousel>
+                </Col>
+            </Row>
+            <Row className="justify-content-center my-4">
+                <Col className="text-center">
+                        <Link to="/products" className="btn btn-secondary btn-lg" variant="secondary">Shop Beans</Link>
                 </Col>
             </Row>
         </Container>

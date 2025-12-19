@@ -1,6 +1,7 @@
 import { Container, Row, Col, Button, Card } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { useCart } from '../context/CartContext.jsx';
 import Black from '../assets/Black.jpg';
 import BlackEyed from '../assets/BlackEyed.jpg';
 import Garbanzo from '../assets/Garbanzo.jpg';
@@ -16,6 +17,7 @@ import Pinto from '../assets/Pinto.jpg';
 function ProductDetailsPage() {
     const { productId } = useParams();
     const navigate = useNavigate();
+    const { addToCart } = useCart();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -50,7 +52,7 @@ function ProductDetailsPage() {
             <Row>
                 <Col md={6} className="mb-4">
                     <Card>
-                        <Card.Img variant="top" src={product.image} alt={product.title} style={{ height: '400px', objectFit: 'contain', padding: '20px' }} />
+                        <Card.Img variant="top" src={product.image} alt={product.title} style={{ backgroundColor: '#ceb4a5ff', height: '400px', objectFit: 'contain', padding: '20px' }} />
                     </Card>
                 </Col>
                 <Col md={6}>
@@ -62,7 +64,7 @@ function ProductDetailsPage() {
                         <span className="badge bg-success me-2">Rating: {product.rating?.rate} / 5</span>
                         <span className="badge bg-info">{product.rating?.count} reviews</span>
                     </div>
-                    <Button variant="primary" size="lg" className="w-100">Add to Cart</Button>
+                    <Button  variant="success"  onClick={() => addToCart(product)}>🛒 Add to Cart</Button>
                 </Col>
             </Row>
         </Container>

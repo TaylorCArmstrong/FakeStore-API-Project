@@ -1,6 +1,8 @@
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext.jsx';
+import { getCustomProducts, deleteCustomProduct } from '../services/productService.js';
 import Black from '../assets/Black.jpg';
 import BlackEyed from '../assets/BlackEyed.jpg';
 import Garbanzo from '../assets/Garbanzo.jpg';
@@ -18,6 +20,14 @@ function ProductsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+    const { addToCart } = useCart();
+
+    const handleDeleteProduct = (productId, isCustom) => {
+        if (isCustom && window.confirm('Are you sure you want to delete this product?')) {
+            deleteCustomProduct(productId);
+            setProducts(products.filter(p => p.id !== productId));
+        }
+    };
 
     useEffect(() => {
         const customProducts = [
@@ -34,17 +44,17 @@ function ProductsPage() {
             { id: 11, title: 'Pinto Beans', price: 8.49, image: Pinto, category: 'Legumes', description: 'Earthy pinto beans, a staple for refried beans.', rating: { rate: 4.6, count: 140 } },
         ];
 
-        const fetchProducts = async () => {
-            try {
-                setProducts(customProducts);
-                setLoading(false);
-            } catch (err) {
-                setError(err.message);
-                setLoading(false);
-            }
-        };
+        // Combine original products with custom products from localStorage
+        const userProducts = getCustomProducts();
+        const allProducts = [...customProducts, ...userProducts];
 
-        fetchProducts();
+        try {
+            setProducts(allProducts);
+            setLoading(false);
+        } catch (err) {
+            setError(err.message);
+            setLoading(false);
+        }
     }, []);
 
     if (loading) return <Container className="mt-5"><p>Loading products...</p></Container>;
@@ -55,10 +65,10 @@ function ProductsPage() {
             <h1 className="mb-4">Products</h1>
             <Row>
                 {products.map((product) => (
-                    <Col md={4} sm={6} xs={12} key={product.id} className="mb-4" style={{ backgroundColor: '#f8f9fa', padding: '30px', borderRadius: '8px' }}>
+                    <Col md={4} sm={6} xs={12} key={product.id} className="mb-4" style={{ backgroundColor: '#cf9d7eff', padding: '30px', borderRadius: '8px' }}>
                         <Card className="h-100 shadow-sm">
                             <Card.Img variant="top" src={product.image} alt={product.title} style={{ height: '250px', objectFit: 'contain', padding: '10px' }} />
-                            <Card.Body className="d-flex flex-column">
+                            <Card.Body className="d-flex flex-column" style={{ backgroundColor: '#ceb4a5ff'}}>
                                 <Card.Title>{product.title}</Card.Title>
                                 <Card.Text className="text-muted small">{product.category}</Card.Text>
                                 <Card.Text className="flex-grow-1">{product.description}</Card.Text>
@@ -67,12 +77,30 @@ function ProductsPage() {
                                     <span className="badge bg-success me-2">Rating: {product.rating?.rate} / 5</span>
                                     <span className="badge bg-info">{product.rating?.count} reviews</span>
                                 </div>
-                                <Button 
-                                    variant="dark" 
-                                    onClick={() => navigate(`/products/${product.id}`)}
-                                >
-                                    View Details
-                                </Button>
+                                <div className="d-flex gap-2">
+                                    <Button 
+                                        variant="secondary" 
+                                        onClick={() => navigate(`/products/${product.id}`)}
+                                        className="flex-grow-1"
+                                    >
+                                        View Details
+                                    </Button>
+                                    <Button 
+                                        variant="success" 
+                                        onClick={() => addToCart(product)}
+                                    >
+                                        🛒 Add to Cart
+                                    </Button>
+                                    {product.isCustom && (
+                                        <Button 
+                                            variant="danger" 
+                                            onClick={() => handleDeleteProduct(product.id, product.isCustom)}
+                                            size="sm"
+                                        >
+                                            🗑️
+                                        </Button>
+                                    )}
+                                </div>
                             </Card.Body>
                         </Card>
                     </Col>

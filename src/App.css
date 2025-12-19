@@ -1,13 +1,27 @@
 body {
-    background-color: #598a73;
+    /* Site background image (place your image at /public/background.jpg) */
+    background-image: url('assets/vintage_retro_lines_corner_background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-color: #598a73; /* fallback color while image loads */
     color: white;
 }
 
 #root {
-    background-color: #e7f6ef;
+    background-color: transparent;
     min-height: 100vh;
 }
 
 .navbar {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Optional overlay to improve text contrast site-wide */
+.site-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.25);
+    pointer-events: none;
 }
