@@ -10,7 +10,7 @@ function OffCanvas() {
     return (
         <>
             <Button variant="info" onClick={handleShow} className="mt-4">
-                Show Info
+                Need Help?
             </Button>
 
             <Offcanvas show={show} onHide={handleClose}>
@@ -18,7 +18,7 @@ function OffCanvas() {
                     <Offcanvas.Title>Information</Offcanvas.Title>
                 </Offcanvas.Header>
                 <Offcanvas.Body>
-                    This is a sample offcanvas component. You can add any content here.
+                    Use the form to add products in the store. Make sure to fill out all required fields before submitting. Edits can be made after submissions.
                 </Offcanvas.Body>
             </Offcanvas>
         </>
