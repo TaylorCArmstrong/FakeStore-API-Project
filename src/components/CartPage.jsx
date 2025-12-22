@@ -1,13 +1,56 @@
-import { Container, Row, Col, Card, Button, Image } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Image, Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import { useCart } from '../context/CartContext.jsx';
 
 function CartPage() {
     const { cart, removeFromCart, updateQuantity, clearCart, getTotalPrice } = useCart();
+    const [error, setError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
+
+    const handleRemoveFromCart = (itemId, itemTitle) => {
+        try {
+            removeFromCart(itemId);
+            setSuccessMessage(`${itemTitle} removed from cart`);
+            setTimeout(() => setSuccessMessage(null), 3000);
+        } catch {
+            setError('Failed to remove item from cart. Please try again.');
+            setTimeout(() => setError(null), 5000);
+        }
+    };
+
+    const handleUpdateQuantity = (itemId, newQuantity) => {
+        try {
+            if (newQuantity < 0) {
+                setError('Quantity cannot be negative');
+                setTimeout(() => setError(null), 3000);
+                return;
+            }
+            updateQuantity(itemId, newQuantity);
+        } catch {
+            setError('Failed to update quantity. Please try again.');
+            setTimeout(() => setError(null), 5000);
+        }
+    };
+
+    const handleClearCart = () => {
+        if (window.confirm('Are you sure you want to clear your entire cart?')) {
+            try {
+                clearCart();
+                setSuccessMessage('Cart cleared successfully');
+                setTimeout(() => setSuccessMessage(null), 3000);
+            } catch {
+                setError('Failed to clear cart. Please try again.');
+                setTimeout(() => setError(null), 5000);
+            }
+        }
+    };
 
     if (cart.length === 0) {
         return (
             <Container className="py-5 text-center">
+                {error && <Alert variant="danger" onClose={() => setError(null)} dismissible>{error}</Alert>}
+                {successMessage && <Alert variant="success" onClose={() => setSuccessMessage(null)} dismissible>{successMessage}</Alert>}
                 <h1 className="mb-4">Shopping Cart</h1>
                 <p className="text-muted mb-4">Your cart is empty.</p>
                 <Link to="/products" className="btn btn-primary">Continue Shopping</Link>
@@ -17,6 +60,8 @@ function CartPage() {
 
     return (
         <Container className="py-5">
+            {error && <Alert variant="danger" onClose={() => setError(null)} dismissible>{error}</Alert>}
+            {successMessage && <Alert variant="success" onClose={() => setSuccessMessage(null)} dismissible>{successMessage}</Alert>}
             <h1 className="mb-4">Shopping Cart</h1>
             <Row>
                 <Col lg={8}>
@@ -36,7 +81,7 @@ function CartPage() {
                                             <Button 
                                                 variant="outline-secondary" 
                                                 size="sm"
-                                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                                onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
                                             >
                                                 −
                                             </Button>
@@ -44,7 +89,7 @@ function CartPage() {
                                             <Button 
                                                 variant="outline-secondary" 
                                                 size="sm"
-                                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                                onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
                                             >
                                                 +
                                             </Button>
@@ -55,7 +100,7 @@ function CartPage() {
                                         <Button 
                                             variant="danger" 
                                             size="sm"
-                                            onClick={() => removeFromCart(item.id)}
+                                            onClick={() => handleRemoveFromCart(item.id, item.title)}
                                         >
                                             Remove
                                         </Button>
@@ -87,7 +132,7 @@ function CartPage() {
                             <Button 
                                 variant="outline-secondary" 
                                 className="w-100 mb-2"
-                                onClick={clearCart}
+                                onClick={handleClearCart}
                             >
                                 Clear Cart
                             </Button>

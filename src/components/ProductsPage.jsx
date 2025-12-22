@@ -1,8 +1,9 @@
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Alert } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext.jsx';
-import { getCustomProducts, deleteCustomProduct } from '../services/productService.js';
+import { getCustomProducts, deleteCustomProduct, updateProduct } from '../services/productService.js';
+import EditProductModal from './EditProductModal.jsx';
 import Black from '../assets/Black.jpg';
 import BlackEyed from '../assets/BlackEyed.jpg';
 import Garbanzo from '../assets/Garbanzo.jpg';
@@ -19,18 +20,60 @@ function ProductsPage() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [editingProduct, setEditingProduct] = useState(null);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [updateError, setUpdateError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
     const navigate = useNavigate();
     const { addToCart } = useCart();
 
     const handleDeleteProduct = (productId, isCustom) => {
         if (isCustom && window.confirm('Are you sure you want to delete this product?')) {
-            deleteCustomProduct(productId);
-            setProducts(products.filter(p => p.id !== productId));
+            try {
+                deleteCustomProduct(productId);
+                setProducts(products.filter(p => p.id !== productId));
+                setSuccessMessage('Product deleted successfully!');
+                setTimeout(() => setSuccessMessage(null), 3000);
+            } catch (err) {
+                setError(err.message || 'Failed to delete product');
+                setTimeout(() => setError(null), 5000);
+            }
+        }
+    };
+
+    const handleOpenEditModal = (product) => {
+        setEditingProduct(product);
+        setUpdateError(null);
+        setShowEditModal(true);
+    };
+
+    const handleCloseEditModal = () => {
+        setShowEditModal(false);
+        setEditingProduct(null);
+        setUpdateError(null);
+    };
+
+    const handleSaveEdit = async (formData) => {
+        if (!editingProduct) return;
+        setIsUpdating(true);
+        setUpdateError(null);
+        try {
+            const updatedProduct = await updateProduct(editingProduct.id, formData);
+            setProducts(products.map(p => p.id === editingProduct.id ? updatedProduct : p));
+            handleCloseEditModal();
+            setSuccessMessage('Product updated successfully!');
+            setTimeout(() => setSuccessMessage(null), 3000);
+        } catch (err) {
+            setUpdateError(err.message || 'Failed to update product');
+        } finally {
+            setIsUpdating(false);
         }
     };
 
     useEffect(() => {
-        const customProducts = [
+        try {
+            const customProducts = [
             { id: 1, title: 'Black Beans', price: 9.99, image: Black, category: 'Legumes', description: 'High quality black beans, perfect for any bean dish. Rich in protein and fiber.', rating: { rate: 4.5, count: 120 } },
             { id: 2, title: 'Black Eyed Peas', price: 8.99, image: BlackEyed, category: 'Legumes', description: 'Classic black eyed peas with a smooth texture. Great for soups and stews.', rating: { rate: 4.3, count: 95 } },
             { id: 3, title: 'Chickpeas/Garbanzo Beans', price: 7.99, image: Garbanzo, category: 'Legumes', description: 'Versatile chickpeas ideal for hummus, salads, and curries. Nutrient-dense.', rating: { rate: 4.7, count: 200 } },
@@ -44,15 +87,15 @@ function ProductsPage() {
             { id: 11, title: 'Pinto Beans', price: 8.49, image: Pinto, category: 'Legumes', description: 'Earthy pinto beans, a staple for refried beans.', rating: { rate: 4.6, count: 140 } },
         ];
 
-        // Combine original products with custom products from localStorage
-        const userProducts = getCustomProducts();
-        const allProducts = [...customProducts, ...userProducts];
+            // Combine original products with custom products from localStorage
+            const userProducts = getCustomProducts();
+            const allProducts = [...customProducts, ...userProducts];
 
-        try {
             setProducts(allProducts);
             setLoading(false);
         } catch (err) {
-            setError(err.message);
+            console.error('Error loading products:', err);
+            setError(err.message || 'Failed to load products');
             setLoading(false);
         }
     }, []);
@@ -62,7 +105,17 @@ function ProductsPage() {
 
     return (
         <Container className="py-5">
+            {error && <Alert variant="danger" onClose={() => setError(null)} dismissible>{error}</Alert>}
+            {successMessage && <Alert variant="success" onClose={() => setSuccessMessage(null)} dismissible>{successMessage}</Alert>}
             <h1 className="mb-4">Products</h1>
+            <EditProductModal 
+                show={showEditModal}
+                product={editingProduct}
+                onClose={handleCloseEditModal}
+                onSave={handleSaveEdit}
+                isLoading={isUpdating}
+                error={updateError}
+            />
             <Row>
                 {products.map((product) => (
                     <Col md={4} sm={6} xs={12} key={product.id} className="mb-4" style={{ backgroundColor: '#cf9d7eff', padding: '30px', borderRadius: '8px' }}>
@@ -92,13 +145,24 @@ function ProductsPage() {
                                         🛒 Add to Cart
                                     </Button>
                                     {product.isCustom && (
-                                        <Button 
-                                            variant="danger" 
-                                            onClick={() => handleDeleteProduct(product.id, product.isCustom)}
-                                            size="sm"
-                                        >
-                                            🗑️
-                                        </Button>
+                                        <>
+                                            <Button 
+                                                variant="info" 
+                                                onClick={() => handleOpenEditModal(product)}
+                                                size="sm"
+                                                title="Edit product"
+                                            >
+                                                ✏️
+                                            </Button>
+                                            <Button 
+                                                variant="danger" 
+                                                onClick={() => handleDeleteProduct(product.id, product.isCustom)}
+                                                size="sm"
+                                                title="Delete product"
+                                            >
+                                                🗑️
+                                            </Button>
+                                        </>
                                     )}
                                 </div>
                             </Card.Body>

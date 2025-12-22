@@ -1,7 +1,8 @@
-import { Container, Row, Col, Button, Card } from 'react-bootstrap';
+import { Container, Row, Col, Button, Card, Alert } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useCart } from '../context/CartContext.jsx';
+import { getCustomProducts } from '../services/productService.js';
 import Black from '../assets/Black.jpg';
 import BlackEyed from '../assets/BlackEyed.jpg';
 import Garbanzo from '../assets/Garbanzo.jpg';
@@ -18,10 +19,26 @@ function ProductDetailsPage() {
     const { productId } = useParams();
     const navigate = useNavigate();
     const { addToCart } = useCart();
-    const [product, setProduct] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
 
-    useEffect(() => {
+    const handleAddToCart = () => {
+        try {
+            if (!currentProduct) {
+                setError('Product information not available');
+                setTimeout(() => setError(null), 3000);
+                return;
+            }
+            addToCart(currentProduct);
+            setSuccessMessage(`${currentProduct.title} added to cart!`);
+            setTimeout(() => setSuccessMessage(null), 3000);
+        } catch {
+            setError('Failed to add product to cart. Please try again.');
+            setTimeout(() => setError(null), 5000);
+        }
+    };
+    
+    const allProducts = useMemo(() => {
         const customProducts = [
             { id: 1, title: 'Black Beans', price: 9.99, image: Black, category: 'Legumes', description: 'High quality black beans, perfect for any bean dish. Rich in protein and fiber.', rating: { rate: 4.5, count: 120 } },
             { id: 2, title: 'Black Eyed Peas', price: 8.99, image: BlackEyed, category: 'Legumes', description: 'Classic black eyed peas with a smooth texture. Great for soups and stews.', rating: { rate: 4.3, count: 95 } },
@@ -35,36 +52,45 @@ function ProductDetailsPage() {
             { id: 10, title: 'Peas', price: 7.49, image: Peas, category: 'Legumes', description: 'Sweet dried peas for soups and purees.', rating: { rate: 4.5, count: 130 } },
             { id: 11, title: 'Pinto Beans', price: 8.49, image: Pinto, category: 'Legumes', description: 'Earthy pinto beans, a staple for refried beans.', rating: { rate: 4.6, count: 140 } },
         ];
-
-        const foundProduct = customProducts.find(p => p.id === parseInt(productId));
-        if (foundProduct) {
-            setProduct(foundProduct);
-            setLoading(false);
+        try {
+            const userProducts = getCustomProducts();
+            return [...customProducts, ...userProducts];
+        } catch {
+            return customProducts;
         }
-    }, [productId]);
+    }, []);
 
-    if (loading) return <Container className="mt-5"><p>Loading product details...</p></Container>;
-    if (!product) return <Container className="mt-5"><p>Product not found</p></Container>;
+    const idNum = Number(productId);
+    const currentProduct = allProducts.find(p => p.id === idNum) || null;
+
+    if (!currentProduct) return (
+        <Container className="mt-5">
+            {error && <Alert variant="danger" onClose={() => setError(null)} dismissible>{error}</Alert>}
+            <Button variant="secondary" onClick={() => navigate('/products')}>← Back to Products</Button>
+        </Container>
+    );
 
     return (
         <Container className="py-5">
+            {error && <Alert variant="danger" onClose={() => setError(null)} dismissible>{error}</Alert>}
+            {successMessage && <Alert variant="success" onClose={() => setSuccessMessage(null)} dismissible>{successMessage}</Alert>}
             <Button variant="secondary" className="mb-4" onClick={() => navigate('/products')}>← Back to Products</Button>
             <Row>
                 <Col md={6} className="mb-4">
                     <Card>
-                        <Card.Img variant="top" src={product.image} alt={product.title} style={{ backgroundColor: '#ceb4a5ff', height: '400px', objectFit: 'contain', padding: '20px' }} />
+                        <Card.Img variant="top" src={currentProduct.image} alt={currentProduct.title} style={{ backgroundColor: '#ceb4a5ff', height: '400px', objectFit: 'contain', padding: '20px' }} />
                     </Card>
                 </Col>
                 <Col md={6}>
-                    <h1>{product.title}</h1>
-                    <p className="text-muted">{product.category}</p>
-                    <h3 className="text-primary mb-3">${product.price}</h3>
-                    <p className="mb-4">{product.description}</p>
+                    <h1>{currentProduct.title}</h1>
+                    <p className="text-muted">{currentProduct.category}</p>
+                    <h3 className="text-primary mb-3">${currentProduct.price}</h3>
+                    <p className="mb-4">{currentProduct.description}</p>
                     <div className="mb-3">
-                        <span className="badge bg-success me-2">Rating: {product.rating?.rate} / 5</span>
-                        <span className="badge bg-info">{product.rating?.count} reviews</span>
+                        <span className="badge bg-success me-2">Rating: {currentProduct.rating?.rate} / 5</span>
+                        <span className="badge bg-info">{currentProduct.rating?.count} reviews</span>
                     </div>
-                    <Button  variant="success"  onClick={() => addToCart(product)}>🛒 Add to Cart</Button>
+                    <Button variant="success" onClick={handleAddToCart}>🛒 Add to Cart</Button>
                 </Col>
             </Row>
         </Container>

@@ -58,7 +58,7 @@ function HomePage() {
             </Row>
             <Row className="justify-content-center my-4">
                 <Col className="text-center">
-                        <Link to="/products" className="btn btn-secondary btn-lg" variant="secondary">Shop Beans</Link>
+                    <Link to="/products" className="btn btn-secondary btn-lg">Shop Beans</Link>
                 </Col>
             </Row>
         </Container>
