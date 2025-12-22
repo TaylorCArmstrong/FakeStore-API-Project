@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const CUSTOM_PRODUCTS_KEY = 'customBeansProducts';
 
-// Get custom products from localStorage
+
 export const getCustomProducts = () => {
     try {
         const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY);
@@ -13,7 +13,7 @@ export const getCustomProducts = () => {
     }
 };
 
-// Save custom products to localStorage
+
 const saveCustomProducts = (products) => {
     try {
         localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(products));
@@ -23,7 +23,7 @@ const saveCustomProducts = (products) => {
     }
 };
 
-// Create a new product (post to FakeStoreAPI and save to localStorage)
+
 export const createProduct = async (productData) => {
     try {
         if (!productData.title || !productData.price || !productData.description) {
@@ -38,7 +38,7 @@ export const createProduct = async (productData) => {
             category: productData.category || 'custom'
         });
 
-        // Store in localStorage for persistence
+        
         const customProducts = getCustomProducts();
         const newProduct = {
             ...response.data,
@@ -54,7 +54,7 @@ export const createProduct = async (productData) => {
     }
 };
 
-// Update a custom product (PUT to FakeStoreAPI and update localStorage)
+
 export const updateProduct = async (productId, productData) => {
     try {
         if (!productData.title || !productData.price || !productData.description) {
@@ -69,7 +69,7 @@ export const updateProduct = async (productId, productData) => {
             category: productData.category || 'custom'
         });
 
-        // Update in localStorage
+        
         const customProducts = getCustomProducts();
         const updatedProducts = customProducts.map(p =>
             p.id === productId
@@ -85,7 +85,7 @@ export const updateProduct = async (productId, productData) => {
     }
 };
 
-// Delete a custom product
+
 export const deleteCustomProduct = (productId) => {
     try {
         const customProducts = getCustomProducts();

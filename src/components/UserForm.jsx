@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
-// Removed unused Col/Row imports
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
-// Removed unused InputGroup/FloatingLabel imports
 import FormModal from './FormModal';
 import OffCanvas from './OffCanvas';
 import { createProduct } from '../services/productService.js';

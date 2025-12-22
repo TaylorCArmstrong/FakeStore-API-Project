@@ -87,7 +87,7 @@ function ProductsPage() {
             { id: 11, title: 'Pinto Beans', price: 8.49, image: Pinto, category: 'Legumes', description: 'Earthy pinto beans, a staple for refried beans.', rating: { rate: 4.6, count: 140 } },
         ];
 
-            // Combine original products with custom products from localStorage
+            
             const userProducts = getCustomProducts();
             const allProducts = [...customProducts, ...userProducts];
 
